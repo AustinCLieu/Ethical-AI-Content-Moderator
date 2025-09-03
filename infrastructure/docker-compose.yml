@@ -1,0 +1,30 @@
+version: "3.9"
+services:
+  postgres:
+    image: postgres:16 #downloads and runs Postgres version 16
+    environment: #sets up a default database, user, and password
+      POSTGRES_PASSWORD: postgress #password
+      POSTGRES_USER: postgres #username
+      POSTGRES_DB: moderator_dev #database name. Will need to refer to this database name in future
+    ports: ["5432:5432"] #maps my machine's port 5432 to the container's port 5432, so I can connect locally
+    volumes: [pgdata:/var/lib/postgresql/data] #stores Postgres data on my machine so data isn't lost when I restart Docker
+
+  redis:
+    image: redis:7 #pulls redis v7
+    ports: ["6379:6379"] #maps the standard Redis port
+  
+  minio:
+    image: minio/minio #runs MiniIO, an S3-compatible object storage
+    command: server /data --console-address ":9001" #tells MiniIO to store files under /data.
+    #console-address ":9001" lets you access the admin UI at http://localhost:9001
+    environment: #sets login credentials (minio/miniopass)
+      MINIO_ROOT_USER: minio #temporary user local username
+      MINIO_ROOT_PASSWORD: miniopass #temporary user local password
+    ports: ["9000:9000", "9001:9001"] #exposes two ports
+    # 9000 for S3 API calls (your ML service will upload JSON here)
+    # 9001 for the web console
+    volumes: [miniodata:/data] #persists uploaded files locally
+
+volumes: { pgdata: {}, miniodata: {} } #defines persistent storage volumes. 
+#even if I restart Docker, my DM and MiniIO files survive
+
