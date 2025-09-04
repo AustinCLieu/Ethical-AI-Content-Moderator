@@ -3,7 +3,7 @@ services:
   postgres:
     image: postgres:16 #downloads and runs Postgres version 16
     environment: #sets up a default database, user, and password
-      POSTGRES_PASSWORD: postgress #password
+      POSTGRES_PASSWORD: postgres #password
       POSTGRES_USER: postgres #username
       POSTGRES_DB: moderator_dev #database name. Will need to refer to this database name in future
     ports: ["5432:5432"] #maps my machine's port 5432 to the container's port 5432, so I can connect locally

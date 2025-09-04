@@ -4,12 +4,94 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
-generator client {
-  provider = "prisma-client-js"
-  output   = "../generated/prisma"
-}
-
+// datasource db tells Prisma that I'm using Postgres and to pull the
+// connection string from my .env file 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+// generates the Prisma Client, a TypeScript/JS library that I import in
+// my NestJS API to run queries (const prima = new PrismaClient() )
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Contribution (datasource db, generator client)
+// connects my API service to my Postgres database so that I can 
+// store/retrieve moderation data
+
+// Represents an organization/tenant (future-proof for multi-tenancy)
+// id = unique identifier (uuid())
+// name = org's name
+// createdAt = timestamp auto-filled with now()
+// content Content[] = one Org can have many Content items (relation)
+model Org {
+  id        String    @id @default(uuid())
+  name      String
+  createdAt DateTime  @default(now())
+  content   Content[]
+}
+
+// Contribution (Org)
+// Supports multi-tenancy (Week 5 RBAC). Even if I start with one org, this
+// design allows multiple orgs later
+
+// Represents a user account (reviewers, admins)
+// email must be unique
+// name is optional (String?)
+// createdAt auto-filled with now()
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+}
+
+//Contribution (User)
+// Needed for reviewer queue (Week 2) and RBAC & audit logs (Week 5)
+
+// Represents a piece of text submitted for moderation
+// orgId = foreign key linking to its Org
+// text = the user-generated content/input
+// lang = language (default "en")
+// status = workflow status (pending, later flagged/approved/rejected)
+// predictions = list of all moderation predictions made
+// org  Org @relation... = ensures every Content belongs to a valid Org
+model Content {
+  id          String                 @id @default(uuid())
+  orgId       String
+  text        String
+  lang        String                 @default("en")
+  status      String                 @default("pending")
+  createdAt   DateTime               @default(now())
+  predictions ModerationPrediction[]
+  org         Org                    @relation(fields: [orgId], references: [id])
+}
+
+// Contribution (Content)
+// This is the core entity - every moderation request creates a row here
+// It anchors predictions, reviews, and audit trails
+
+// Stores the results of the ML classifer
+// contentId = foreign key linking back to the Content row
+// modelName = which ML model was used (unitary/toxic-bert)
+// scores = JSON map of probabilities { toxic: 0.92, non-toxic: 0.08 })
+// topLabel = the predicted class ("toxic"/"non-toxic")
+// explainRef = optional S3/MiniIO path to explainability artifacts (SHAP JSON)
+// createdAt = timestamp of prediction
+// content Content @relation... ensures every prediction links to a Content row
+model ModerationPrediction {
+  id         String   @id @default(uuid())
+  contentId  String
+  modelName  String
+  scores     Json
+  topLabel   String
+  explainRef String?
+  createdAt  DateTime @default(now())
+  content    Content  @relation(fields: [contentId], references: [id])
+}
+
+// Contribution (ModerationPrediction)
+// This is my evidence log. Every prediction is stored, with explainability refereces
+// It's critical for transparency and fairness analysis
