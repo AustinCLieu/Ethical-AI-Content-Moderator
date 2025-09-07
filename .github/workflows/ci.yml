@@ -10,27 +10,6 @@ jobs:
   frontend:
     name: Frontend (Next.js)
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: frontend
-    steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-node@v4
-      with:
-        node-version: 'lts/*'
-    - uses: pnpm/action-setup@v4
-      with: 
-        version: 9 #latest stable pnpm
-    - run: pnpm install --frozen-lockfile=false
-    - run: pnpm lint
-    - run: pnpm build
-  
-  api:
-    name: API (NestJS)
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: api
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -39,9 +18,67 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           version: 9
+      # Install once at root
       - run: pnpm install --frozen-lockfile=false
+      # Run lint/build inside frontend
       - run: pnpm lint
+        working-directory: frontend
       - run: pnpm build
+        working-directory: frontend
+
+  # frontend:
+  #   name: Frontend (Next.js)
+  #   runs-on: ubuntu-latest
+  #   defaults:
+  #     run:
+  #       working-directory: frontend
+  #   steps:
+  #   - uses: actions/checkout@v4
+  #   - uses: actions/setup-node@v4
+  #     with:
+  #       node-version: 'lts/*'
+  #   - uses: pnpm/action-setup@v4
+  #     with: 
+  #       version: 9 #latest stable pnpm
+  #   - run: pnpm install --frozen-lockfile=false
+  #   - run: pnpm lint
+  #   - run: pnpm build
+  
+  api:
+    name: API (NestJS)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      # Install once at root
+      - run: pnpm install --frozen-lockfile=false
+      # Run lint/build inside api
+      - run: pnpm lint
+        working-directory: api
+      - run: pnpm build
+        working-directory: api
+        
+    # name: API (NestJS)
+    # runs-on: ubuntu-latest
+    # defaults:
+    #   run:
+    #     working-directory: api
+    # steps:
+    #   - uses: actions/checkout@v4
+    #   - uses: actions/setup-node@v4
+    #     with:
+    #       node-version: 'lts/*'
+    #   - uses: pnpm/action-setup@v4
+    #     with:
+    #       version: 9
+    #   - run: pnpm install --frozen-lockfile=false
+    #   - run: pnpm lint
+    #   - run: pnpm build
   
   ml:
     name: ML (Python)
