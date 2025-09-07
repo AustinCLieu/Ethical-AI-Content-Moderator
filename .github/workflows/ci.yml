@@ -18,8 +18,9 @@ jobs:
     - uses: actions/setup-node@v4
       with:
         node-version: 'lts/*'
-        cache: 'pnpm'
-    - run: corepack enable
+    - uses: pnpm/action-setup@v4
+      with: 
+        version: 9 #latest stable pnpm
     - run: pnpm install --frozen-lockfile=false
     - run: pnpm lint
     - run: pnpm build
