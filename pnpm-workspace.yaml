@@ -1,3 +1,5 @@
 packages:
   - "frontend"
   - "api"
+  - "ml"
+  - "packages/*" # for SDK in week 6

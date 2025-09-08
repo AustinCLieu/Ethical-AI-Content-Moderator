@@ -18,13 +18,27 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           version: 9
-      # Install once at root
       - run: pnpm install --frozen-lockfile=false
-      # Run lint/build inside frontend
-      - run: pnpm lint || true # Keep true/green until I add rules
-        working-directory: frontend
-      - run: pnpm build
-        working-directory: frontend
+      - run: pnpm --filter frontend lint || true # keep true/green until I add rules
+      - run: pnpm --filter frontend build
+  # frontend:
+  #   name: Frontend (Next.js)
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
+  #     - uses: actions/setup-node@v4
+  #       with:
+  #         node-version: 'lts/*'
+  #     - uses: pnpm/action-setup@v4
+  #       with:
+  #         version: 9
+  #     # Install once at root
+  #     - run: pnpm install --frozen-lockfile=false
+  #     # Run lint/build inside frontend
+  #     - run: pnpm lint || true # Keep true/green until I add rules
+  #       working-directory: frontend
+  #     - run: pnpm build
+  #       working-directory: frontend
 
   # frontend:
   #   name: Frontend (Next.js)
@@ -55,13 +69,26 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           version: 9
-      # Install once at root
       - run: pnpm install --frozen-lockfile=false
-      # Run lint/build inside api
-      - run: pnpm lint || true #Keep true/green until I add rules
-        working-directory: api
-      - run: pnpm build
-        working-directory: api
+      - run: pnpm --filter api lint || true # keep true/green until I add rules
+      - run: pnpm --filter api build
+    # name: API (NestJS)
+    # runs-on: ubuntu-latest
+    # steps:
+    #   - uses: actions/checkout@v4
+    #   - uses: actions/setup-node@v4
+    #     with:
+    #       node-version: 'lts/*'
+    #   - uses: pnpm/action-setup@v4
+    #     with:
+    #       version: 9
+    #   # Install once at root
+    #   - run: pnpm install --frozen-lockfile=false
+    #   # Run lint/build inside api
+    #   - run: pnpm lint || true #Keep true/green until I add rules
+    #     working-directory: api
+    #   - run: pnpm build
+    #     working-directory: api
 
     # name: API (NestJS)
     # runs-on: ubuntu-latest
