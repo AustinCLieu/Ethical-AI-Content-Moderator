@@ -8,6 +8,7 @@
  * Also exports a helper (startWorker) that starts a background worker
  * process that consumes jobs from jobsQ and runs your handler on each job
  */
+import 'dotenv/config';
 import { Queue, Worker } from 'bullmq';
 
 /**
@@ -16,9 +17,13 @@ import { Queue, Worker } from 'bullmq';
  */
 const conn = {
     connection: {
-        host: process.env.REDIS_HOST, // e.g., "Localhost" in dev
-        port: +(process.env.REDIS_PORT || 0) // +(...) converts string into a number 
+        host: process.env.REDIS_HOST ?? 'localhost',
+        port: Number(process.env.REDIS_PORT ?? 6379)
     }
+    // connection: {
+    //     host: process.env.REDIS_HOST, // e.g., "Localhost" in dev
+    //     port: +(process.env.REDIS_PORT || 0) // +(...) converts string into a number 
+    // }
 };
 /**
  * The moderation.jobs queue is where the API places work items
